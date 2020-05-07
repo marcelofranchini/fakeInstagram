@@ -1,0 +1,85 @@
+
+Todo:
+  ☐ Item
+
+1º Piloto - Exibir feed:
+     - ☐ Alterar rota get '/home' para direcionar controller postController.index
+    ☐ Puxar do banco de dados, todas as publicações e as informações do usuário que a fez.
+    ☐ Usar a biblioteca moment js para formatar a data do post.
+    ☐ Exibir na view de feed, as informações recebidas do banco.
+    ☐ Criar a a regra que, só poderá entrar no feed quem estiver logado no sistema
+
+2º Piloto - Criar lógica de comentários:
+    ☐ Criar o modelo de comentários
+    ☐ Criar a relação de publicação com comentários
+    ☐ Criar controller para a entidade de comentários seguindo os padrões do projeto
+    ☐ Usar o formulário de criação e comentário no post, para criar um comentário
+    ☐ Exibir os comentários do post no feed
+
+
+
+    const publications = await Publication.findAll({
+      limit: requestsPerPage,
+      offset: (page - 1) * requestsPerPage,
+      include: [
+        {
+          model: Comment,
+          include: [
+            {
+              model: User,
+              as: 'user',
+            },
+          ],
+        },
+        {
+          model: User,
+          as: 'user',
+        },
+      ],
+      order: [['updatedAt', 'DESC']],
+    });
+e no ejs
+
+      <p><b><%= comment.user.username %></b> <%= comment.description %></p>    <div class="card-comments">
+      <% publication.Comments.forEach(comment=> { %>
+      <p><b><%= comment.user.username %></b> <%= comment.description %></p>
+      <% }) %>
+    </div>
+
+
+require true no include faz inner em vez de left
+
+
+
+index: async (req,res) => {
+      const {user} = req.session;
+      const {page = 1} =  req.query;
+      const {count: total, row: publications} = await Publication.findAndCountAll({
+        limit: 3,
+        offset: (page -1) * 3, 
+        include: {
+          model: User,
+          as: 'user',
+        },
+        order: [['create_ate', 'DESC']],
+        
+        })
+
+        let totalPage = Math.round(page/3);
+
+      return res.render('index', {publications, user, moment, totalPage})
+
+  }
+
+
+
+
+  
+ <nav aria-label="Page navigation example">
+      <ul class="pagination">
+        <% for (let numeroPage = 1; numeroPage <= totalPage; numeroPage++) { %>
+          <li class="page-item"><a class="page-link" href="?page=<%= numeroPage %>"><%= numeroPage %> </a></li>
+       
+          <% } %>
+    </ul>
+  </nav>
